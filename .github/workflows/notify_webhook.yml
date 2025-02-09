@@ -9,10 +9,16 @@ jobs:
   call_webhook:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2  # 이전 커밋과 비교할 수 있도록 설정
+
       - name: Get Changed Files
         id: changed-files
         run: |
-          echo "changed_files=$(git diff --name-only HEAD~1 HEAD | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_ENV
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD | jq -R -s -c 'split("\n")[:-1]')
+          echo "changed_files=$CHANGED_FILES" >> $GITHUB_ENV
 
       - name: Call Webhook with File Changes
         run: |
