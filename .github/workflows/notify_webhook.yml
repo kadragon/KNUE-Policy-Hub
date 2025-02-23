@@ -3,7 +3,7 @@ name: Notify Webhook on Commit
 on:
   push:
     branches:
-      - main  # main 브랜치에 push될 때 실행
+      - main # main 브랜치에 push될 때 실행
 
 jobs:
   call_webhook:
@@ -12,7 +12,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 2  # 이전 커밋과 비교할 수 있도록 설정
+          fetch-depth: 2 # 이전 커밋과 비교할 수 있도록 설정
 
       - name: Get Changed Files
         id: changed-files
