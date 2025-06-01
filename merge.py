@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import List
 import logging
+import shutil
 
 
 def merge_md_files(directory: Path, output_file: Path) -> None:
@@ -13,14 +14,14 @@ def merge_md_files(directory: Path, output_file: Path) -> None:
     """
     try:
         with output_file.open('w', encoding='utf-8') as outfile:
-            for md_file in directory.rglob('*.md'):
+            for md_file in sorted(directory.rglob('*.md')):
                 try:
-                    content = md_file.read_text(encoding='utf-8')
-                    outfile.write(content)
+                    with md_file.open('r', encoding='utf-8') as infile:
+                        shutil.copyfileobj(infile, outfile)
                     outfile.write('\n---\n\n')
-                    logging.debug(f'Merged file: {md_file}')
+                    logging.debug('Merged file: %s', md_file)
                 except Exception as e:
-                    logging.error(f'Error reading {md_file}: {e}')
+                    logging.error('Error reading %s: %s', md_file, e)
     except Exception as e:
         logging.error(f'Error writing to {output_file}: {e}')
 
@@ -49,7 +50,7 @@ def main():
     setup_logging()
 
     MD_PATH = Path('./_merged')
-    DIR_PATHS = [Path('./규정')]
+    DIR_PATHS = [Path('./규정'), Path('./업무지침')]
 
     MD_PATH.mkdir(parents=True, exist_ok=True)
     logging.info(f'Output directory set to: {MD_PATH.resolve()}')
@@ -60,13 +61,12 @@ def main():
                 f'Directory does not exist or is not a directory: {dir_path}')
             continue
 
-        folders = list_folders(dir_path)
+        folders = sorted(list_folders(dir_path))
         logging.info(f'Found {len(folders)} folders in {dir_path}')
 
         for folder in folders:
             target_md = MD_PATH / f'{dir_path.name}_{folder.name}.md'
-            logging.info(f'Merging Markdown files in: {
-                         folder} into {target_md}')
+            logging.info('Merging Markdown files in: %s into %s', folder, target_md)
             merge_md_files(folder, target_md)
 
     logging.info('Markdown files have been successfully merged.')
